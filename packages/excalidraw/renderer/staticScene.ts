@@ -233,6 +233,10 @@ const _renderStaticScene = ({
   const context = bootstrapCanvas({
     canvas,
     scale,
+    zoom: appState.zoom.value,
+    scrollX: appState.scrollX,
+    scrollY: appState.scrollY,
+    page: appState.pages,
     normalizedWidth,
     normalizedHeight,
     theme: appState.theme,

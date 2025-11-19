@@ -3867,7 +3867,55 @@ class App extends React.Component<AppProps, AppState> {
   ) => {
     this.cancelInProgressAnimation?.();
     this.maybeUnfollowRemoteUser();
-    this.setState(state);
+
+    const updater =
+    typeof state === "function"
+      ? (prevState: AppState) => {
+          const partial = state(prevState, []) as Partial<AppState>;
+          const next = { ...prevState, ...partial };
+
+          const width = 1302;
+          const viewportWidthScene = next.width / next.zoom.value;
+          const viewportHeightScene = next.height / next.zoom.value;
+
+          const minScrollX = viewportWidthScene > width ? (viewportWidthScene  - width) / 2 : viewportWidthScene - width - 50;
+          const maxScrollX = viewportWidthScene > width ? (viewportWidthScene  - width) / 2 : 50;
+
+          if (partial.scrollX !== undefined) {
+            partial.scrollX = clamp(partial.scrollX, minScrollX, maxScrollX);
+          }
+
+          if (partial.scrollY !== undefined) {
+            partial.scrollY = clamp(partial.scrollY, viewportHeightScene - 1820 * next.pages - 80 / next.zoom.value,  80/next.zoom.value);
+          }
+
+          return { ...prevState, ...partial } as AppState;
+        }
+      : (prevState: AppState) => {
+          var partial = state as Partial<AppState>;
+          const next = { ...prevState, ...partial };
+
+          const width = 1302;
+          const viewportWidthScene = next.width / next.zoom.value;
+          const viewportHeightScene = next.height / next.zoom.value;
+
+          const minScrollX = viewportWidthScene > width ? (viewportWidthScene  - width) / 2 : viewportWidthScene - width - 50;
+          const maxScrollX = viewportWidthScene > width ? (viewportWidthScene  - width) / 2 : 50;
+
+          if (partial && partial.scrollX !== undefined) {
+            partial = { ...partial, scrollX: clamp(partial.scrollX, minScrollX, maxScrollX) };
+          }
+
+          if (partial && partial.scrollY !== undefined) {
+            partial.scrollY = clamp(partial.scrollY, viewportHeightScene - 1820 * next.pages - 80 / next.zoom.value,  80/next.zoom.value);
+          }
+
+          return { ...prevState, ...(partial as Partial<AppState>) } as AppState;
+        };
+
+    this.setState(updater);
+
+    //this.setState(state);
   };
 
   setToast = (
@@ -4037,6 +4085,13 @@ class App extends React.Component<AppProps, AppState> {
     /** force always re-renders canvas even if no change */
     force?: boolean,
   ) => {
+    // recalculate number of pages
+    const elements = this.scene.getNonDeletedElements();
+    let [minX, minY, maxX, maxY] = getCommonBounds(elements);
+    this.setState({
+      pages: Math.ceil( maxY / 1820) + 1
+    });
+
     if (force === true) {
       this.scene.triggerUpdate();
     } else {

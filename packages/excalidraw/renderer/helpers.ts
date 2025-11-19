@@ -53,6 +53,10 @@ export const getNormalizedCanvasDimensions = (
 export const bootstrapCanvas = ({
   canvas,
   scale,
+  zoom,
+  scrollX,
+  scrollY,
+  page,
   normalizedWidth,
   normalizedHeight,
   theme,
@@ -61,6 +65,10 @@ export const bootstrapCanvas = ({
 }: {
   canvas: HTMLCanvasElement;
   scale: number;
+  zoom: number;
+  scrollX: number;
+  scrollY: number;
+  page: number;
   normalizedWidth: number;
   normalizedHeight: number;
   theme?: AppState["theme"];
@@ -69,8 +77,21 @@ export const bootstrapCanvas = ({
 }): CanvasRenderingContext2D => {
   const context = canvas.getContext("2d")!;
 
+  context.reset();
+
   context.setTransform(1, 0, 0, 1, 0, 0);
   context.scale(scale, scale);
+
+  context.beginPath();
+  for (let i = 0; i < page; i++) {
+    context.rect(
+      (scrollX - 0) * zoom,
+      (scrollY - 0 + i * 1820 ) * zoom,
+      1300.5 * zoom,
+      1800.5 * zoom,
+    ); 
+  }
+  context.clip();
 
   if (isExporting && theme === THEME.DARK) {
     context.filter = THEME_FILTER;

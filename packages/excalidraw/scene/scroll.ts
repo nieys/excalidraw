@@ -12,6 +12,8 @@ import type { ExcalidrawElement } from "@excalidraw/element/types";
 
 import type { AppState, Offsets, PointerCoords, Zoom } from "../types";
 
+import { clamp } from "@excalidraw/math";
+
 const isOutsideViewPort = (appState: AppState, cords: Array<number>) => {
   const [x1, y1, x2, y2] = cords;
   const { x: viewportX1, y: viewportY1 } = sceneCoordsToViewportCoords(
@@ -45,11 +47,19 @@ export const centerScrollOn = ({
 
   scrollX += (offsets?.left ?? 0) / 2 / zoom.value;
 
+  //KN 
+  const width = 1302;
+  const viewportWidthScene = viewportDimensions.width / zoom.value;
+  const minScrollX = viewportWidthScene > width ? (viewportWidthScene  - width) / 2 : viewportWidthScene - width - 50;
+  const maxScrollX = viewportWidthScene > width ? (viewportWidthScene  - width) / 2 : 50;
+  scrollX = clamp(scrollX, minScrollX, maxScrollX);
+
   let scrollY =
     (viewportDimensions.height - (offsets?.bottom ?? 0)) / 2 / zoom.value -
     scenePoint.y;
 
   scrollY += (offsets?.top ?? 0) / 2 / zoom.value;
+  scrollY = Math.min(scrollY, 80/zoom.value); // prevent scrolling beyond the top edge
 
   return {
     scrollX,
@@ -71,6 +81,7 @@ export const calculateScrollCenter = (
   }
   let [x1, y1, x2, y2] = getCommonBounds(elements);
 
+  /*
   if (isOutsideViewPort(appState, [x1, y1, x2, y2])) {
     [x1, y1, x2, y2] = getClosestElementBounds(
       elements,
@@ -80,9 +91,10 @@ export const calculateScrollCenter = (
       ),
     );
   }
+  */
 
   const centerX = (x1 + x2) / 2;
-  const centerY = (y1 + y2) / 2;
+  const centerY = y2;//(y1 + y2) / 2;
 
   return centerScrollOn({
     scenePoint: { x: centerX, y: centerY },

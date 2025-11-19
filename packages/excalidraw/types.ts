@@ -183,6 +183,7 @@ type _CommonCanvasAppState = {
   scrollY: AppState["scrollY"];
   width: AppState["width"];
   height: AppState["height"];
+  pages: AppState["pages"];
   viewModeEnabled: AppState["viewModeEnabled"];
   openDialog: AppState["openDialog"];
   editingGroupId: AppState["editingGroupId"]; // TODO: move to interactive canvas if possible
@@ -345,6 +346,7 @@ export interface AppState {
   viewBackgroundColor: string;
   scrollX: number;
   scrollY: number;
+  pages: number;
   cursorButton: "up" | "down";
   scrolledOutside: boolean;
   name: string | null;

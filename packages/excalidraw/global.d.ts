@@ -24,6 +24,7 @@ interface CanvasRenderingContext2D {
       | [number, number, number] // [top-left, top-right-and-bottom-left, bottom-right]
       | [number, number, number, number], // [top-left, top-right, bottom-right, bottom-left]
   ) => void;
+  reset: ()=>void;
 }
 
 interface Clipboard extends EventTarget {
